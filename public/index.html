@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Contact Manager</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/stylesheets/main.css" />
+  <script src="/javascripts/jquery.js"></script>
+  <script src="/javascripts/handlebars.js"></script>
+</head>
+<body>
+  <header class="bs-header">
+    <div class="container">
+      <a href="#home">
+        <h1>Contact Manager</h1>
+      </a>
+      <p>Launch School JS239 Practice Project</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 main-container">
+        
+      <!-- templating element -->
+        <div style>
+          <!-- row well -->
+          <!-- <div class="row well">
+            <div class="text-center col-sm-6">
+              <a href="#contacts/new" class="btn btn-lg btn-outline">Add Contact</a>
+            </div>
+            <div class="text-center col-sm-6">
+              <input type="text" class="form-control contact-name-search" placeholder="Search">
+            </div>
+          </div> -->
+          <!-- <ul class="media-list row contacts-container"><li class="media col-md-3 col-sm-4"><div class="media-heading"><h3>Jay Gudsson</h3></div><div class="media-body"><dl><dt>Phone Number:</dt><dd>6043519761</dd><dt>Email:</dt><dd>gudsson@gmail.com</dd></dl></div><div class="contact-btn-wrapper"><a href="#contacts/edit/1" class="edit-contact btn btn-outline"><span class="glyphicon glyphicon-pencil"></span> Edit</a><a href="#contacts/delete/1" class="delete-contact btn btn-outline"><span class="glyphicon glyphicon-trash"></span> Delete</a></div><hr></li><li class="media col-md-3 col-sm-4"><div class="media-heading"><h3>Philomena Chenne</h3></div><div class="media-body"><dl><dt>Phone Number:</dt><dd>7783956655</dd><dt>Email:</dt><dd>phichenne@yahoo.ca</dd></dl></div><div class="contact-btn-wrapper"><a href="#contacts/edit/2" class="edit-contact btn btn-outline"><span class="glyphicon glyphicon-pencil"></span> Edit</a><a href="#contacts/delete/2" class="delete-contact btn btn-outline"><span class="glyphicon glyphicon-trash"></span> Delete</a></div><hr></li></ul> -->
+          <!-- <div class="empty-contacts-placeholder"></div>
+          <div class="empty-search-contacts-placeholder"></div> -->
+
+          <script id='rowWell' type='text/x-handlebars'>
+            <div class="row well">
+              <div class="text-center col-sm-6">
+                <a href="#contacts/new" class="btn btn-lg btn-outline">Add Contact</a>
+              </div>
+              <div class="text-center col-sm-6">
+                <input type="text" class="form-control contact-name-search" placeholder="Search">
+              </div>
+            </div>
+          </script>
+
+          <script id='contactsList' type='text/x-handlebars'>
+            {{> rowWell}}
+            <ul class="media-list row contacts-container">
+              {{#each contacts}}
+              {{> contactTemplate}}
+              {{/each}}
+            </ul>
+          </script>
+
+          <script id='contactTemplate' type='text/x-handlebars'>
+
+            <li class="media col-md-3 col-sm-4">
+              <div class="media-heading">
+                <h3>{{full_name}}</h3>
+              </div>
+              <div class="media-body">
+                <dl>
+                  <dt>Phone Number:</dt>
+                  <dd>{{phone_number}}</dd>
+                  <dt>Email:</dt>
+                  <dd>{{email}}</dd>
+                  <dt>Tags:</dt>
+                  <dd>XXX</dd>
+                </dl>
+              </div>
+              <div class="contact-btn-wrapper"><a href="#contacts/edit/{{id}}" class="edit-contact btn btn-outline"><span class="glyphicon glyphicon-pencil"></span> Edit</a><a href="#contacts/delete/{{id}}" class="delete-contact btn btn-outline"><span class="glyphicon glyphicon-trash"></span> Delete</a></div>
+              <hr>
+            </li>
+          </script>
+
+        </div>
+
+
+      <!-- templating element -->
+
+      </div>
+    </div>
+
+    <div class="footer text-center">
+      <p>By <a href="https://github.com/gudsson">Jay Gudsson</a>.</p>
+    </div>
+  </div> <!-- /container -->
+</body>
+<script src="/javascripts/main.js"></script>
+</html>
