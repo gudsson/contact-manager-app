@@ -5,40 +5,37 @@ export class ContactsList {
   constructor() {
     this.api = new ContactModel();
     this.view = new ContactView();
-    // this.hb = new HandlebarsInterface();
     this.contacts = [];
-    // this.getAll();
   }
 
-  async load() {
+  async load(animate = true) {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      this.view.showContacts(contacts);
+      // this.loadContacts(contacts);
+      
+      if (animate) {
+        this.view.showContacts(contacts);
+        this.animateContainer();
+      } else this.view.refreshContacts(contacts);
+
       this.addListenerToContactBtns();
-      this.addListenerToAddContactBtn();
-      this.addListenerToForm();
-      this.animateContainer();
+      this.addListenerToNewContactBtn();
     });
   }
 
-  async reload() {
-    this.api.getAll().then(contacts => {
-      this.contacts = contacts;
-      this.view.showContacts(contacts);
-      this.animateContainer();
-    });
+  // async refresh() {
+  //   this.api.getAll().then(contacts => {
+  //     this.contacts = contacts;
+  //     this.view.refreshContacts(contacts);
+  //   });
+  // }
+
+  loadContacts(contacts) {
+    this.view.showContacts(contacts);
+    
   }
 
-  animateContainer() {
-    let cards = this.view.getSlideCards();
-
-    if (cards.length === 2) {
-      cards.first().slideUp('slow', () => { cards.first().detach(); });
-      cards.last().slideDown('slow');
-    } else cards.first().slideDown('slow');
-  }
-
-  addListenerToAddContactBtn() {
+  addListenerToNewContactBtn() {
     $("a[href='#contacts/new']").on('click', e => {
       e.preventDefault();
       this.view.showForm({ method: 'POST', title: 'Create Contact'});
@@ -60,17 +57,40 @@ export class ContactsList {
     });
   }
 
-  addListenerToForm() {
-    $('div.main-container').on('click', e => {
-      let elem = $(e.target);
-      if (elem.is('.btn') && elem.closest('form').length > 0) {
-        e.preventDefault();
+  // async reload() {
+  //   this.api.getAll().then(contacts => {
+  //     this.contacts = contacts;
+  //     this.view.showContacts(contacts);
+  //     this.animateContainer();
+  //   });
+  // }
 
-        if (elem.is('[type=submit]')) {
-          this.submitForm();
-        }
-      }
+  animateContainer() {
+    let cards = this.view.getSlideCards();
+
+    if (cards.length === 2) {
+      cards.first().slideUp('slow', () => { cards.first().remove(); });
+      cards.last().slideDown('slow');
+    } else cards.first().slideDown('slow');
+  }
+
+  addListenerToFormBtns() {
+    $('form').on('submit', e => {
+      e.preventDefault();
+      this.submitForm();
     });
+
+    $('button.btn-close-form').on('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.cancelForm();
+    });
+  }
+
+  cancelForm() {
+    this.loadContacts(this.contacts);
+    this.addListenerToNewContactBtn();
+    this.animateContainer();
   }
 
   submitForm() {
@@ -78,16 +98,25 @@ export class ContactsList {
     let data = new FormData(form);
 
     this.api.submit(form.getAttribute('method'), form.getAttribute('action'), data)
-      .then(this.reload());
+      .then(this.load());
+  }
+
+  loadAddContactForm() {
+    this.view.showForm({ method: 'POST', title: 'Create Contact'});
+    this.addListenerToFormBtns();
   }
 
   loadEditContactForm(id) {
     this.view.showForm(Object.assign({method: 'PUT'}, this.getContact(id)));
-    
+    this.addListenerToFormBtns();
   }
 
   removeContact(id) {
-    this.api.delete(id);
+    if (confirm('Do you want to delete the contact?')) {
+      this.api.delete(id);
+      this.load(false);
+      // this.load();
+    }
     // TODO: add refresh?
   }
 
@@ -99,9 +128,9 @@ export class ContactsList {
     return this.contacts;
   }
 
-  printAll() {
-    this.contacts.forEach(contact => console.log(contact));
-  }
+  // printAll() {
+  //   this.contacts.forEach(contact => console.log(contact));
+  // }
 
   getContact(id) {
     return this.contacts.find(contact => contact.id === +id);

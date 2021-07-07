@@ -24,6 +24,12 @@ export class ContactView {
     this._appendDiv(this.contactsList({ contacts: contacts }));
   }
 
+  refreshContacts(contacts) {
+    // console.log(this.$container.children()[0])
+    let $div = $(this.$container.children()[0])
+    $div.html(this.contactsList({ contacts: contacts }));
+  } 
+
   _appendDiv(compliedTemplate) {
     let $div = $('<div></div>');
     $div.html(compliedTemplate);
@@ -34,6 +40,11 @@ export class ContactView {
   getSlideCards() {
     return this.$container.children('div');
   }
+
+  // reverseCards() {
+  //   let $cards = this.$container.$children('div');
+  //   this.$container.append($cards.get().reverse());
+  // }
 }
 
 // showContactsDead(contacts) {
