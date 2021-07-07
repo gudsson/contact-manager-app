@@ -11,16 +11,21 @@ export class ContactsList {
   }
 
   async load() {
-    // this.contacts = await this.api.getAll();
-    // this.view.loadContacts(this.contacts);
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
       this.view.showContacts(contacts);
-      this.addListenersToContactBtns();
-      this.addListenersToAddContactBtn();
+      this.addListenerToContactBtns();
+      this.addListenerToAddContactBtn();
+      this.addListenerToForm();
       this.animateContainer();
+    });
+  }
 
-      // $('div:hidden').slideDown('slow');
+  async reload() {
+    this.api.getAll().then(contacts => {
+      this.contacts = contacts;
+      this.view.showContacts(contacts);
+      this.animateContainer();
     });
   }
 
@@ -28,41 +33,62 @@ export class ContactsList {
     let cards = this.view.getSlideCards();
 
     if (cards.length === 2) {
-      cards.first().slideUp('slow', () => { cards.first().remove(); });
+      cards.first().slideUp('slow', () => { cards.first().detach(); });
       cards.last().slideDown('slow');
-      
     } else cards.first().slideDown('slow');
   }
 
-  addListenersToAddContactBtn() {
+  addListenerToAddContactBtn() {
     $("a[href='#contacts/new']").on('click', e => {
       e.preventDefault();
-      this.view.showForm('add');
+      this.view.showForm({ method: 'POST', title: 'Create Contact'});
       this.animateContainer();
     });
   }
 
-  addListenersToContactBtns() {
+  addListenerToContactBtns() {
     $('ul.contacts-container').on('click', e => {
       e.preventDefault();
       let $btn = $(e.target).closest('.btn');
-      // console.log($btn)
       if ($btn.length) {
         let [action, id] = $btn.attr('href').split('/').slice(1);
 
-        // console.log(action);
-        // console.log(id);
-
         if (action === 'delete') this.removeContact(id);
-
-        
+        if (action === 'edit') this.loadEditContactForm(id);
+        this.animateContainer();
       }
-      // console.log($link.attr('href'));
     });
+  }
+
+  addListenerToForm() {
+    $('div.main-container').on('click', e => {
+      let elem = $(e.target);
+      if (elem.is('.btn') && elem.closest('form').length > 0) {
+        e.preventDefault();
+
+        if (elem.is('[type=submit]')) {
+          this.submitForm();
+        }
+      }
+    });
+  }
+
+  submitForm() {
+    let form = $('form')[0];
+    let data = new FormData(form);
+
+    this.api.submit(form.getAttribute('method'), form.getAttribute('action'), data)
+      .then(this.reload());
+  }
+
+  loadEditContactForm(id) {
+    this.view.showForm(Object.assign({method: 'PUT'}, this.getContact(id)));
+    
   }
 
   removeContact(id) {
     this.api.delete(id);
+    // TODO: add refresh?
   }
 
   // getAll() {
@@ -75,6 +101,10 @@ export class ContactsList {
 
   printAll() {
     this.contacts.forEach(contact => console.log(contact));
+  }
+
+  getContact(id) {
+    return this.contacts.find(contact => contact.id === +id);
   }
 }
 

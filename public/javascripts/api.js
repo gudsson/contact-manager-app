@@ -17,9 +17,22 @@ export class ContactModel {
     return await fetch(path, requestObj).then(response => response.json());
   }
 
+  async submit(method, action, formData) {
+
+    let requestObj = {
+      method: method,
+      ...this.defaultHeaderObj,
+      body: JSON.stringify(Object.fromEntries(formData)), //JSON.stringify(data),
+    }
+    // console.log({...data})
+    return await fetch(action, requestObj)//.then(response => console.log(response)) //.then(data => console.log(data));
+  }
+
   post(contact) {}
 
-  put() {}
+  put(contactData) {
+    const requestObj = Object.assign({ method: PUT })
+  }
 
   async delete(id) {
     const requestObj = Object.assign({ method: 'DELETE' }, this.defaultHeaderObj);

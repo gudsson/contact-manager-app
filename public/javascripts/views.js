@@ -16,8 +16,8 @@ export class ContactView {
     return Handlebars.compile($('#rowWell').html());;
   }
 
-  showForm(formType) {
-    this._appendDiv(this.formTemplate({ title: 'Create Contact'}));
+  showForm(dataObj) {
+    this._appendDiv(this.formTemplate(dataObj));
   }
 
   showContacts(contacts) {
@@ -30,7 +30,7 @@ export class ContactView {
     $div.hide();
     this.$container.append($div);
   }
-  
+
   getSlideCards() {
     return this.$container.children('div');
   }
