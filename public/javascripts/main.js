@@ -1,11 +1,11 @@
 // import { ApiInterface } from './api.js'
 // import { TemplateInterface } from './templates.js'
-import { ContactsList } from './controller.js'
+import { App } from './controller.js'
 
 $(() => {
 
-  let list = new ContactsList();
-  list.load();
+  let app = new App();
+  app.init();
 
 
 

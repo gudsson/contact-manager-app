@@ -1,57 +1,136 @@
 import { ContactModel } from './api.js'
 import { ContactView } from './views.js'
 
-export class ContactsList {
+export class App {
   constructor() {
     this.api = new ContactModel();
     this.view = new ContactView();
     this.contacts = [];
   }
 
-  async load(animate = true) {
+  async init() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      
-      if (animate) {
-        this.view.showContacts(contacts);
-        this.animateContainer();
-      } else this.view.refreshContacts(contacts);
 
-      this.addListenerToContactBtns();
-      this.addListenerToNewContactBtn();
+      this.view.initializeHomepage(contacts);
+      this.view.initializeNewContactForm();
+      // this.view.initializeEditContactForm();
+
+      // loadAddContactForm() {
+      //   this.view.showForm({ method: 'POST', title: 'Create Contact'});
+      //   this.addListenerToFormBtns();
+      // }
+
+      this.addListeners();
+      // console.log(contacts)
+      // if (animate) {
+      //   this.view.showContacts(contacts);
+      //   this.stageContainer();
+      // } else this.view.refreshContacts(contacts);
+
+      // this.addListenersToContactList();
     });
   }
 
-  addListenerToNewContactBtn() {
-    $("a[href='#contacts/new']").on('click', e => {
-      e.preventDefault();
-      this.loadAddContactForm();
-      // this.view.showForm({ method: 'POST', title: 'Create Contact'});
-      this.animateContainer();
+  async reload() {
+    this.api.getAll().then(contacts => {
+      this.contacts = contacts;
+      this.view.updateContactList(contacts);
+      console.log(contacts);
     });
   }
 
-  addListenerToContactBtns() {
+  addListeners() {
+    this.addRowWellListeners();
+    this.addContactListListeners();
+  }
+
+  addRowWellListeners() {
+    this.addSearchBoxListener();
+    this.addNewContactBtnListener();
+  }
+
+  addContactListListeners() {
+    // this.addListenerToContactBtns();
+    this.addContactModifierBtnListeners();
+    // this.addListenerToNewContactBtn();
+  }
+
+  addContactModifierBtnListeners() {
     $('ul.contacts-container').on('click', e => {
       e.preventDefault();
       let $btn = $(e.target).closest('.btn');
       if ($btn.length) {
         let [action, id] = $btn.attr('href').split('/').slice(1);
 
-        if (action === 'delete') this.removeContact(id);
-        if (action === 'edit') this.loadEditContactForm(id);
-        this.animateContainer();
+        // if (action === 'delete') this.removeContact(id);
+        if (action === 'delete') this.deleteContact(id);
+        if (action === 'edit') this.editContact(id);
+        // this.stageContainer(); // should this be here?
       }
     });
   }
 
-  animateContainer() {
+  addFormListeners() {
+
+  }
+
+  addSearchBoxListener() { // DONE
+    $('.contact-name-search').on('keyup', e => {
+      let searchTerm = $(e.target).val().toLowerCase();
+      let matchingContacts = this.contacts.filter(contact => {
+        return contact.full_name.toLowerCase().includes(searchTerm);
+      });
+      this.view.updateContactList(matchingContacts);
+    });
+  }
+
+  addNewContactBtnListener() {
+    $("a[href='#contacts/new']").on('click', e => {
+      e.preventDefault();
+      alert($(e.target).text());
+      this.view.showNewContactForm();
+      // this.loadAddContactForm();
+      // this.stageContainer();
+    });
+  }
+
+  // addListenerToSearchBox() {
+  //   $('.contact-name-search').on('keyup', e => {
+  //     let 
+  //   });
+  // }
+
+  addListenerToNewContactBtn() { // Delete
+    $("a[href='#contacts/new']").on('click', e => {
+      e.preventDefault();
+      this.loadAddContactForm();
+      this.stageContainer();
+    });
+  }
+
+  // addListenerToContactBtns() { // Delete
+  //   $('ul.contacts-container').on('click', e => {
+  //     e.preventDefault();
+  //     let $btn = $(e.target).closest('.btn');
+  //     if ($btn.length) {
+  //       let [action, id] = $btn.attr('href').split('/').slice(1);
+
+  //       if (action === 'delete') this.removeContact(id);
+  //       if (action === 'edit') this.loadEditContactForm(id);
+  //       this.stageContainer(); // should this be here?
+  //     }
+  //   });
+  // }
+
+  stageContainer(animate = true) {
     let cards = this.view.getSlideCards();
+    let animationSpeed = animate ? 'slow' : 0;
 
     if (cards.length === 2) {
-      cards.first().slideUp('slow', () => { cards.first().remove(); });
-      cards.last().slideDown('slow');
-    } else cards.first().slideDown('slow');
+      cards.first().slideUp(animationSpeed, () => { cards.first().remove(); });
+      cards.last().slideDown(animationSpeed);
+    } else cards.first().slideDown(animationSpeed);
   }
 
   addListenerToFormBtns() {
@@ -70,7 +149,7 @@ export class ContactsList {
   cancelForm() {
     this.view.showContacts(this.contacts);
     this.addListenerToNewContactBtn();
-    this.animateContainer();
+    this.stageContainer();
   }
 
   submitForm() {
@@ -86,18 +165,23 @@ export class ContactsList {
     this.addListenerToFormBtns();
   }
 
-  loadEditContactForm(id) {
-    this.view.showForm(Object.assign({method: 'PUT'}, this.getContact(id)));
-    this.addListenerToFormBtns();
+  editContact(id) {
+    // this.view.showEditContactForm(Object.assign({method: 'PUT'}, this.getContact(id)));
+    this.view.showEditContactForm(this.getContact(id));
+    // this.addListenerToFormBtns();
   }
 
-  removeContact(id) {
+  loadEditContactForm(id) {
+    // this.view.showEditContactForm(Object.assign({method: 'PUT'}, this.getContact(id)));
+    this.view.showEditContactForm(this.getContact(id));
+    // this.addListenerToFormBtns();
+  }
+
+  deleteContact(id) {
     if (confirm('Do you want to delete the contact?')) {
       this.api.delete(id);
-      this.load(false);
-      // this.load();
+      this.reload();
     }
-    // TODO: add refresh?
   }
 
   // getAll() {
