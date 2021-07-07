@@ -24,7 +24,6 @@ export class ContactModel {
       ...this.defaultHeaderObj,
       body: JSON.stringify(Object.fromEntries(formData)), //JSON.stringify(data),
     }
-    // console.log({...data})
     return await fetch(action, requestObj)//.then(response => console.log(response)) //.then(data => console.log(data));
   }
 
@@ -37,18 +36,5 @@ export class ContactModel {
   async delete(id) {
     const requestObj = Object.assign({ method: 'DELETE' }, this.defaultHeaderObj);
     return await fetch(this.path + String(id), requestObj); //.then(response => response.json());
-    // this._fetch('DELETE', id)
-    //   .then(response => console.log(response));
-  }
-
-  _fetch(method, pathId, data) {
-    let path = Number.isInteger(pathId) ? this.path + String(pathId) : this.path;
-
-    let requestObj = {};
-    requestObj.method = method;
-    requestObj.headers = {'Content-Type': 'application/json'};
-    if(typeof data === 'object') requestObj.body = JSON.stringify(data);
-
-    return fetch(path, requestObj);
   }
 }

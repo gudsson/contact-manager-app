@@ -11,7 +11,6 @@ export class ContactsList {
   async load(animate = true) {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      // this.loadContacts(contacts);
       
       if (animate) {
         this.view.showContacts(contacts);
@@ -23,22 +22,11 @@ export class ContactsList {
     });
   }
 
-  // async refresh() {
-  //   this.api.getAll().then(contacts => {
-  //     this.contacts = contacts;
-  //     this.view.refreshContacts(contacts);
-  //   });
-  // }
-
-  loadContacts(contacts) {
-    this.view.showContacts(contacts);
-    
-  }
-
   addListenerToNewContactBtn() {
     $("a[href='#contacts/new']").on('click', e => {
       e.preventDefault();
-      this.view.showForm({ method: 'POST', title: 'Create Contact'});
+      this.loadAddContactForm();
+      // this.view.showForm({ method: 'POST', title: 'Create Contact'});
       this.animateContainer();
     });
   }
@@ -57,14 +45,6 @@ export class ContactsList {
     });
   }
 
-  // async reload() {
-  //   this.api.getAll().then(contacts => {
-  //     this.contacts = contacts;
-  //     this.view.showContacts(contacts);
-  //     this.animateContainer();
-  //   });
-  // }
-
   animateContainer() {
     let cards = this.view.getSlideCards();
 
@@ -82,13 +62,13 @@ export class ContactsList {
 
     $('button.btn-close-form').on('click', e => {
       e.preventDefault();
-      e.stopPropagation();
+      // e.stopPropagation();
       this.cancelForm();
     });
   }
 
   cancelForm() {
-    this.loadContacts(this.contacts);
+    this.view.showContacts(this.contacts);
     this.addListenerToNewContactBtn();
     this.animateContainer();
   }
