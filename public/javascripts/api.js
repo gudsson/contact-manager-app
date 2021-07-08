@@ -27,9 +27,9 @@ export class ContactModel {
     return await fetch(action, requestObj)//.then(response => console.log(response)) //.then(data => console.log(data));
   }
 
-  post(contact) {}
+  post(contact) {} //Delete
 
-  put(contactData) {
+  put(contactData) { //Delete?
     const requestObj = Object.assign({ method: PUT })
   }
 

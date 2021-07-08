@@ -10,6 +10,8 @@ export class ContactView {
     this.rowWell = Handlebars.compile($('#rowWell').html());
     this.contactsList = Handlebars.compile($('#contactsList').html());
     this.formTemplate = Handlebars.compile($('#formTemplate').html());
+    this.emptySearchList = Handlebars.compile($('#emptySearchList').html()); 
+    this.emptyContactList = Handlebars.compile($('#emptyContactList').html()); 
 
     this.contactTemplate = Handlebars.compile($('#contactTemplate').html());
     Handlebars.registerPartial('contactTemplate', $('#contactTemplate').html());
@@ -25,7 +27,7 @@ export class ContactView {
   }
 
   refreshEditContactForm(contactObj) {
-    let dataObj = {...{ method: 'POST', title: 'Edit Contact'}, ...contactObj}
+    let dataObj = {...{ method: 'PUT', title: 'Edit Contact'}, ...contactObj}
     this.$editContactDiv.html(this.formTemplate(dataObj));
   }
 
@@ -37,11 +39,33 @@ export class ContactView {
   showNewContactForm() {
     this.transition(this.$newContactDiv, this.$homepageDiv);
   }
+  
+  updateContactList(contacts) {
+    if (contacts.length === 0) {
+      this.$contactListDiv.html(this.emptyContactList());
+    } else this.$contactListDiv.html(this.contactsList({ contacts: contacts }));
+  }
 
-  transition(containerToShow, containerToHide) {
-    containerToHide.slideUp('slow');
+  showEmptySearch(searchTerm) {
+    this.$contactListDiv.html(this.emptySearchList({ searchTerm: searchTerm }));
+  }
+
+  showContactList(contacts) {
+    this.updateContactList(contacts);
+
+    if (this.$homepageDiv.is(":hidden")) {
+      this.transition(this.$homepageDiv, this.$editContactDiv, this.$newContactDiv);
+    }
+  }
+
+  transition(containerToShow, ...containersToHide) {
+    containersToHide.forEach($container => {
+      if ($container.is(':visible')) $container.slideUp('slow');
+    });
     containerToShow.slideDown('slow');
   }
+
+  
 
   stageContainer(animate = true) {
     let cards = this.view.getSlideCards();
@@ -58,9 +82,6 @@ export class ContactView {
     this.updateContactList(contacts);
   }
 
-  updateContactList(contacts) {
-    this.$contactListDiv.html(this.contactsList({ contacts: contacts }));
-  }
 
   updateForm(dataObject) {
 

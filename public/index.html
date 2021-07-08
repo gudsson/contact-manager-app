@@ -76,6 +76,23 @@
   </li>
 </script>
 
+<script id='emptySearchList' type='text/x-handlebars'>
+  <div class="empty-search-contacts-placeholder">
+    <div class="well text-center">
+      <h3>There are no contacts starting with <strong>{{searchTerm}}.</strong></h3>
+    </div>
+  </div>
+</script>
+
+<script id='emptyContactList' type='text/x-handlebars'>
+  <div class="empty-contacts-placeholder">
+    <div class="well text-center">
+      <h3>There are no contacts.</h3>
+      <a href="#contacts/new" class="btn btn-lg btn-outline">Add Contact</a>
+    </div>
+  </div>
+</script>
+
 <script id='formTemplate' type='text/x-handlebars'>
   <h2 class="page-header text-center">{{title}}</h2>
   <form role="form" method="{{method}}" action="/api/contacts/{{id}}" class="form-horizontal contact-form">

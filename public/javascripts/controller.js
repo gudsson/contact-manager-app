@@ -14,35 +14,22 @@ export class App {
 
       this.view.initializeHomepage(contacts);
       this.view.initializeNewContactForm();
-      // this.view.initializeEditContactForm();
-
-      // loadAddContactForm() {
-      //   this.view.showForm({ method: 'POST', title: 'Create Contact'});
-      //   this.addListenerToFormBtns();
-      // }
 
       this.addListeners();
-      // console.log(contacts)
-      // if (animate) {
-      //   this.view.showContacts(contacts);
-      //   this.stageContainer();
-      // } else this.view.refreshContacts(contacts);
-
-      // this.addListenersToContactList();
     });
   }
 
   async reload() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      this.view.updateContactList(contacts);
-      console.log(contacts);
+      this.view.showContactList(contacts);
     });
   }
 
   addListeners() {
     this.addRowWellListeners();
     this.addContactListListeners();
+    this.addFormListeners();
   }
 
   addRowWellListeners() {
@@ -57,7 +44,7 @@ export class App {
   }
 
   addContactModifierBtnListeners() {
-    $('ul.contacts-container').on('click', e => {
+    $('#contact-list').on('click', e => {
       e.preventDefault();
       let $btn = $(e.target).closest('.btn');
       if ($btn.length) {
@@ -71,27 +58,51 @@ export class App {
     });
   }
 
-  addFormListeners() {
+  addFormListeners() { // TODO:
+    $('[id*="contact-form"]').on("click", e => {
+      let $target = $(e.target);
 
+      if ($target.hasClass('btn-close-form')) {
+        e.preventDefault();
+        this.view.showContactList(this.contacts);
+      }
+
+      if ($target.attr('type') === 'submit') {
+        e.preventDefault();
+        let $form = $target.closest("form");
+        this.submitForm($form);
+      }
+    });
+
+    // $('form').on('submit', e => {
+    //   e.preventDefault();
+    //   this.submitForm();
+    // });
   }
 
   addSearchBoxListener() { // DONE
     $('.contact-name-search').on('keyup', e => {
       let searchTerm = $(e.target).val().toLowerCase();
-      let matchingContacts = this.contacts.filter(contact => {
-        return contact.full_name.toLowerCase().includes(searchTerm);
-      });
-      this.view.updateContactList(matchingContacts);
+      this.searchContacts(searchTerm);
     });
   }
 
-  addNewContactBtnListener() {
-    $("a[href='#contacts/new']").on('click', e => {
-      e.preventDefault();
-      alert($(e.target).text());
-      this.view.showNewContactForm();
-      // this.loadAddContactForm();
-      // this.stageContainer();
+  searchContacts(searchTerm) { // DONE
+    let matchingContacts = this.contacts.filter(contact => {
+      return contact.full_name.toLowerCase().includes(searchTerm);
+    });
+
+    if (matchingContacts.length === 0) {
+      this.view.showEmptySearch(searchTerm)
+    } else this.view.updateContactList(matchingContacts);
+  }
+
+  addNewContactBtnListener() { // DONE
+    $("#homepage").on('click', e => {
+      if ($(e.target).attr('href') === "#contacts/new") {
+        e.preventDefault();
+        this.view.showNewContactForm();
+      }
     });
   }
 
@@ -123,7 +134,7 @@ export class App {
   //   });
   // }
 
-  stageContainer(animate = true) {
+  stageContainer(animate = true) { // Delete
     let cards = this.view.getSlideCards();
     let animationSpeed = animate ? 'slow' : 0;
 
@@ -133,7 +144,7 @@ export class App {
     } else cards.first().slideDown(animationSpeed);
   }
 
-  addListenerToFormBtns() {
+  addListenerToFormBtns() { // DELETE
     $('form').on('submit', e => {
       e.preventDefault();
       this.submitForm();
@@ -146,18 +157,18 @@ export class App {
     });
   }
 
-  cancelForm() {
-    this.view.showContacts(this.contacts);
-    this.addListenerToNewContactBtn();
-    this.stageContainer();
-  }
+  // cancelForm() {
+  //   this.view.showContacts(this.contacts);
+  //   this.addListenerToNewContactBtn();
+  //   this.stageContainer();
+  // }
 
-  submitForm() {
-    let form = $('form')[0];
+  submitForm($form) {
+    let form = $form[0];
     let data = new FormData(form);
 
     this.api.submit(form.getAttribute('method'), form.getAttribute('action'), data)
-      .then(this.load());
+      .then(this.reload());
   }
 
   loadAddContactForm() {
