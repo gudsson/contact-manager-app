@@ -6,11 +6,13 @@ export class App {
     this.api = new ContactModel();
     this.view = new ContactView();
     this.contacts = [];
+    this.tags = [];
   }
 
   async init() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
+      this.tags = this.getAllTags();
 
       this.view.initializeHomepage(contacts);
       this.view.initializeNewContactForm();
@@ -22,6 +24,7 @@ export class App {
   async reload() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
+      this.tags = this.getAllTags();
       this.view.showContactList(contacts);
     });
   }
@@ -38,27 +41,24 @@ export class App {
   }
 
   addContactListListeners() {
-    // this.addListenerToContactBtns();
     this.addContactModifierBtnListeners();
-    // this.addListenerToNewContactBtn();
+    // add tag button listeners
   }
 
-  addContactModifierBtnListeners() {
+  addContactModifierBtnListeners() { //DONE
     $('#contact-list').on('click', e => {
       e.preventDefault();
       let $btn = $(e.target).closest('.btn');
       if ($btn.length) {
         let [action, id] = $btn.attr('href').split('/').slice(1);
 
-        // if (action === 'delete') this.removeContact(id);
         if (action === 'delete') this.deleteContact(id);
         if (action === 'edit') this.editContact(id);
-        // this.stageContainer(); // should this be here?
       }
     });
   }
 
-  addFormListeners() { // TODO:
+  addFormListeners() {
     $('[id*="contact-form"]').on("click", e => {
       let $target = $(e.target);
 
@@ -69,15 +69,12 @@ export class App {
 
       if ($target.attr('type') === 'submit') {
         e.preventDefault();
+
         let $form = $target.closest("form");
-        this.submitForm($form);
+
+        if (this.validateForm($form)) this.submitForm($form);
       }
     });
-
-    // $('form').on('submit', e => {
-    //   e.preventDefault();
-    //   this.submitForm();
-    // });
   }
 
   addSearchBoxListener() { // DONE
@@ -106,69 +103,71 @@ export class App {
     });
   }
 
-  // addListenerToSearchBox() {
-  //   $('.contact-name-search').on('keyup', e => {
-  //     let 
-  //   });
-  // }
-
-  addListenerToNewContactBtn() { // Delete
-    $("a[href='#contacts/new']").on('click', e => {
-      e.preventDefault();
-      this.loadAddContactForm();
-      this.stageContainer();
-    });
-  }
-
-  // addListenerToContactBtns() { // Delete
-  //   $('ul.contacts-container').on('click', e => {
-  //     e.preventDefault();
-  //     let $btn = $(e.target).closest('.btn');
-  //     if ($btn.length) {
-  //       let [action, id] = $btn.attr('href').split('/').slice(1);
-
-  //       if (action === 'delete') this.removeContact(id);
-  //       if (action === 'edit') this.loadEditContactForm(id);
-  //       this.stageContainer(); // should this be here?
-  //     }
-  //   });
-  // }
-
-  stageContainer(animate = true) { // Delete
-    let cards = this.view.getSlideCards();
-    let animationSpeed = animate ? 'slow' : 0;
-
-    if (cards.length === 2) {
-      cards.first().slideUp(animationSpeed, () => { cards.first().remove(); });
-      cards.last().slideDown(animationSpeed);
-    } else cards.first().slideDown(animationSpeed);
-  }
-
-  addListenerToFormBtns() { // DELETE
-    $('form').on('submit', e => {
-      e.preventDefault();
-      this.submitForm();
-    });
-
-    $('button.btn-close-form').on('click', e => {
-      e.preventDefault();
-      // e.stopPropagation();
-      this.cancelForm();
-    });
-  }
-
-  // cancelForm() {
-  //   this.view.showContacts(this.contacts);
-  //   this.addListenerToNewContactBtn();
-  //   this.stageContainer();
-  // }
-
   submitForm($form) {
     let form = $form[0];
     let data = new FormData(form);
 
     this.api.submit(form.getAttribute('method'), form.getAttribute('action'), data)
-      .then(this.reload());
+      .then(() => {
+        this.reload();
+      });
+  }
+
+  validateForm($form) {
+    let validationArr = [];
+    validationArr.push(this.validateName($form.find('.form-group-name')));
+    validationArr.push(this.validateEmail($form.find('.form-group-email')));
+    validationArr.push(this.validatePhoneNumber($form.find('.form-group-phone')));
+
+    return validationArr.every(element => element);
+  }
+
+  displayError($container, msg) {
+    $container.addClass('has-error');
+    $container.find('small').text(msg);
+  }
+
+  clearError($container) {
+    $container.find('small').empty();
+    $container.removeClass('has-error');
+  }
+
+  validateName($nameContainer) {
+    let name = $nameContainer.find('input').val();
+    let isValid = (name.length > 0);
+
+    if (isValid) {
+      this.clearError($nameContainer);
+    } else this.displayError($nameContainer, 'Please enter the name field.')
+
+    return isValid;
+  }
+
+  validateEmail($emailContainer) {
+    let email = $emailContainer.find('input').val();
+    let isValid = this.isValidEmail(email);
+
+    if (isValid) {
+      this.clearError($emailContainer);
+    } else this.displayError($emailContainer, 'Please enter the valid email field.')
+
+    return isValid;
+  }
+
+  isValidEmail(email) {
+      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email.toLowerCase());
+  }
+
+  validatePhoneNumber($phoneContainer){
+    let phoneNumber = $phoneContainer.find('input').val();
+    let isValid = (phoneNumber.length > 0);
+
+    if (isValid) {
+      this.clearError($phoneContainer);
+    } else this.displayError($phoneContainer, 'Please enter the phone field.')
+
+    return isValid;
   }
 
   loadAddContactForm() {
@@ -177,15 +176,7 @@ export class App {
   }
 
   editContact(id) {
-    // this.view.showEditContactForm(Object.assign({method: 'PUT'}, this.getContact(id)));
     this.view.showEditContactForm(this.getContact(id));
-    // this.addListenerToFormBtns();
-  }
-
-  loadEditContactForm(id) {
-    // this.view.showEditContactForm(Object.assign({method: 'PUT'}, this.getContact(id)));
-    this.view.showEditContactForm(this.getContact(id));
-    // this.addListenerToFormBtns();
   }
 
   deleteContact(id) {
@@ -195,20 +186,13 @@ export class App {
     }
   }
 
-  // getAll() {
-  //   this.api.getAll().then(response => this.contacts = response);
-  // }
-
-  all() {
-    return this.contacts;
-  }
-
-  // printAll() {
-  //   this.contacts.forEach(contact => console.log(contact));
-  // }
-
   getContact(id) {
     return this.contacts.find(contact => contact.id === +id);
+  }
+
+  getAllTags() {
+    let tags = this.contacts.map(contact => contact.tags).filter(tag => tag).toString().split(/,\s?/);
+    return [...new Set(tags)];
   }
 }
 

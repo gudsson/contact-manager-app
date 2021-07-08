@@ -1,17 +1,17 @@
 [
   {
     "id": 1,
-    "full_name": "Naveed Fida2",
-    "email": "nf@example.com",
+    "full_name": "Naveed Fida",
+    "email": "a@launchschool.com",
     "phone_number": "12345678901",
-    "tags": "work,friend"
+    "tags": "work, friend, person"
   },
   {
     "id": 2,
     "full_name": "Victor Reyes",
     "email": "vpr@example.com",
     "phone_number": "09876543210",
-    "tags": "work,friend"
+    "tags": "work, friend"
   },
   {
     "id": 3,
