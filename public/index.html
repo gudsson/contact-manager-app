@@ -23,7 +23,7 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12 main-container">
-        <div id="homepage" style="display: none;"><div id="row-well"></div><div id="contact-list"></div></div>
+        <div id="homepage" style="display: none;"><div id="row-well"></div><div id="tag-filters"></div><div id="contact-list"></div></div>
         <div id="edit-contact-form" style="display: none;"></div>
         <div id="new-contact-form" style="display: none;"></div>
       </div>
@@ -48,6 +48,18 @@
   </div>
 </script>
 
+<script id='tagFilters' type='text/x-handlebars'>
+  <div class="row">
+    <div class="text-center col-sm-6">
+      <div class="tag-btn-wrapper">
+        {{#each tags}}
+        <a href="#" name="{{this}}" class="btn btn-outline">#{{this}}</a>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</script>
+
 <script id='contactsList' type='text/x-handlebars'>
   <ul class="media-list row contacts-container">
     {{#each contacts}}
@@ -67,9 +79,11 @@
         <dd>{{phone_number}}</dd>
         <dt>Email:</dt>
         <dd>{{email}}</dd>
-        {{#if tags}}
         <dt>Tags:</dt>
+        {{#if tags}}
         <dd>{{tags}}</dd>
+        {{else}}
+        <dd><em>None.</em></dd>
         {{/if}}
       </dl>
     </div>
@@ -126,7 +140,7 @@
     <div class="form-group has-feedback form-group-tags">
       <label class="col-sm-4 control-label">Tags:</label>
       <div class="col-sm-6">
-        <input type="tel" class="form-control contact-phone-input" name="tags" value="{{tags}}">
+        <input type="tel" class="form-control contact-tag-input" name="tags" value="{{tags}}">
         <small class="help-block"></small>
       </div>
     </div>

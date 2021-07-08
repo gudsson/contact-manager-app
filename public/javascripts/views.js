@@ -3,11 +3,13 @@ export class ContactView {
     this.$container = $('.main-container');
     this.$homepageDiv = this.$container.find('#homepage');
     this.$rowWellDiv = this.$homepageDiv.find('#row-well');
+    this.$tagFiltersDiv = this.$homepageDiv.find('#tag-filters');
     this.$contactListDiv = this.$homepageDiv.find('#contact-list');
     this.$editContactDiv = this.$container.find('#edit-contact-form');
     this.$newContactDiv = this.$container.find('#new-contact-form');
 
     this.rowWell = Handlebars.compile($('#rowWell').html());
+    this.tagFilters = Handlebars.compile($('#tagFilters').html());
     this.contactsList = Handlebars.compile($('#contactsList').html());
     this.formTemplate = Handlebars.compile($('#formTemplate').html());
     this.emptySearchList = Handlebars.compile($('#emptySearchList').html()); 
@@ -67,6 +69,18 @@ export class ContactView {
 
   updateHomepage(contacts) {
     this.$rowWellDiv.html(this.rowWell);
+    // this.$tagFiltersDiv.html(this.tagFilters());
+    this.updateTagButtons(this.getAllTags(contacts));
+
     this.updateContactList(contacts);
+  }
+
+  updateTagButtons(tags) {
+    this.$tagFiltersDiv.html(this.tagFilters({ tags: tags }));
+  }
+
+  getAllTags(contacts) {
+    let tags = contacts.map(contact => contact.tags).filter(tag => tag).toString().split(/,\s*/);
+    return [...new Set(tags)];
   }
 }

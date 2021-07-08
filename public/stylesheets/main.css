@@ -29,6 +29,13 @@
   background-color: transparent;
   border-color: #563d7c;
 }
+
+.tag-btn-wrapper .active {
+  color: #fff;
+  background-color: #563d7c;
+  border-color: #563d7c;
+}
+
 .btn-outline:hover, .btn-outline:focus, .btn-outline:active {
   color: #fff;
   background-color: #563d7c;
@@ -38,6 +45,7 @@
 .contact-btn-wrapper .btn {
   margin: 0 10px;
 }
+
 .contact-btn-wrapper .edit-contact {
   margin-left: 0;
 }

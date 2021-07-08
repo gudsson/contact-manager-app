@@ -4,7 +4,7 @@
     "full_name": "Naveed Fida",
     "email": "a@launchschool.com",
     "phone_number": "12345678901",
-    "tags": "work, friend, person"
+    "tags": "hello, friend"
   },
   {
     "id": 2,
@@ -18,6 +18,6 @@
     "full_name": "Pete Hanson",
     "email": "ph@example.com",
     "phone_number": "54321098761",
-    "tags": null
+    "tags": ""
   }
 ]

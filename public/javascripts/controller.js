@@ -7,6 +7,9 @@ export class App {
     this.view = new ContactView();
     this.contacts = [];
     this.tags = [];
+    this.activeTagFilters = [];
+    this.filteredContactList = [];
+    this.searchTerm = '';
   }
 
   async init() {
@@ -31,7 +34,8 @@ export class App {
 
   addListeners() {
     this.addRowWellListeners();
-    this.addContactListListeners();
+    this.addTagButtonListeners();
+    this.addContactModifierBtnListeners();
     this.addFormListeners();
   }
 
@@ -40,9 +44,23 @@ export class App {
     this.addNewContactBtnListener();
   }
 
-  addContactListListeners() {
-    this.addContactModifierBtnListeners();
-    // add tag button listeners
+  addTagButtonListeners() {
+    $("#tag-filters").on('click', e => {
+      if ($(e.target).is('a')) {
+        e.preventDefault();
+        e.stopPropagation();
+        // alert('button clicked!');
+        $(e.target).toggleClass('active');
+        $(e.target).blur();
+        this.getSelectedTags();
+        this.filterContactList();
+      }
+    });
+  }
+
+  getSelectedTags() {
+    this.activeTagFilters = [...$("#tag-filters").find('.active')].map(element => element.name);
+    console.log(this.activeTagFilters);
   }
 
   addContactModifierBtnListeners() { //DONE
@@ -79,19 +97,32 @@ export class App {
 
   addSearchBoxListener() { // DONE
     $('.contact-name-search').on('keyup', e => {
-      let searchTerm = $(e.target).val().toLowerCase();
-      this.searchContacts(searchTerm);
+      this.searchTerm = $(e.target).val().toLowerCase();
+      this.filterContactList();
     });
   }
 
-  searchContacts(searchTerm) { // DONE
-    let matchingContacts = this.contacts.filter(contact => {
-      return contact.full_name.toLowerCase().includes(searchTerm);
-    });
+  filterContactList() {
+    this.filteredContactList = this.contacts.slice();
+    this.searchContacts();
 
-    if (matchingContacts.length === 0) {
-      this.view.showEmptySearch(searchTerm)
-    } else this.view.updateContactList(matchingContacts);
+    if (this.activeTagFilters.length > 0) this.filterByTags();
+    
+    if (this.filteredContactList.length === 0) {
+      this.view.showEmptySearch(this.searchTerm)
+    } else this.view.updateContactList(this.filteredContactList);
+  }
+
+  searchContacts() {
+    this.filteredContactList = this.filteredContactList.filter(contact => {
+      return contact.full_name.toLowerCase().includes(this.searchTerm);
+    });
+  }
+
+  filterByTags() {
+    this.filteredContactList = this.filteredContactList.filter(contact => {
+      return this.activeTagFilters.some(tag => contact.tags.includes(tag));
+    });
   }
 
   addNewContactBtnListener() { // DONE
@@ -104,7 +135,9 @@ export class App {
   }
 
   submitForm($form) {
+    this.cleanTagInput($form);
     let form = $form[0];
+    
     let data = new FormData(form);
 
     this.api.submit(form.getAttribute('method'), form.getAttribute('action'), data)
@@ -113,11 +146,18 @@ export class App {
       });
   }
 
+  cleanTagInput($form) {
+    let tagString = $form.find('.contact-tag-input').val();
+    let cleanedTagString = tagString.split(/,\s*/).join(', ');
+    $form.find('.contact-tag-input').val(cleanedTagString);
+  }
+
   validateForm($form) {
     let validationArr = [];
     validationArr.push(this.validateName($form.find('.form-group-name')));
     validationArr.push(this.validateEmail($form.find('.form-group-email')));
     validationArr.push(this.validatePhoneNumber($form.find('.form-group-phone')));
+    validationArr.push(this.validateTags($form.find('.form-group-tags')));
 
     return validationArr.every(element => element);
   }
@@ -170,6 +210,20 @@ export class App {
     return isValid;
   }
 
+  validateTags($tagsContainer){
+    let tagString = $tagsContainer.find('input').val();
+    let tagArray = tagString.split(/,\s*/).map(tag => tag.toLowerCase()).filter(tag => tag);
+    let uniqueTagArray = [...new Set(tagArray)];
+
+    let isValid = (tagArray.length === uniqueTagArray.length);
+
+    if (isValid) {
+      this.clearError($tagsContainer);
+    } else this.displayError($tagsContainer, 'Tags must be unique.')
+
+    return isValid;
+  }
+
   loadAddContactForm() {
     this.view.showForm({ method: 'POST', title: 'Create Contact'});
     this.addListenerToFormBtns();
@@ -191,8 +245,7 @@ export class App {
   }
 
   getAllTags() {
-    let tags = this.contacts.map(contact => contact.tags).filter(tag => tag).toString().split(/,\s?/);
+    let tags = this.contacts.map(contact => contact.tags).filter(tag => tag).toString().split(/,\s*/);
     return [...new Set(tags)];
   }
 }
-
