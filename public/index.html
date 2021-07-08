@@ -98,7 +98,11 @@
 <script id='emptySearchList' type='text/x-handlebars'>
   <div class="empty-search-contacts-placeholder">
     <div class="well text-center">
-      <h3>There are no contacts starting with <strong>{{searchTerm}}.</strong></h3>
+      {{#if searchTerm}}
+      <h3>There are no matching contacts starting with <strong>{{searchTerm}}.</strong></h3>
+      {{else}}
+      <h3>There are no matching contacts.</h3>
+      {{/if}}
     </div>
   </div>
 </script>

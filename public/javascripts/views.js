@@ -54,6 +54,7 @@ export class ContactView {
 
   showContactList(contacts) {
     this.updateContactList(contacts);
+    this.updateTagButtons(this.getAllTags(contacts));
 
     if (this.$homepageDiv.is(":hidden")) {
       this.transition(this.$homepageDiv, this.$editContactDiv, this.$newContactDiv);
@@ -69,7 +70,6 @@ export class ContactView {
 
   updateHomepage(contacts) {
     this.$rowWellDiv.html(this.rowWell);
-    // this.$tagFiltersDiv.html(this.tagFilters());
     this.updateTagButtons(this.getAllTags(contacts));
 
     this.updateContactList(contacts);

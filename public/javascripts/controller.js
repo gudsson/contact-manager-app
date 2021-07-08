@@ -6,16 +6,15 @@ export class App {
     this.api = new ContactModel();
     this.view = new ContactView();
     this.contacts = [];
-    this.tags = [];
     this.activeTagFilters = [];
     this.filteredContactList = [];
     this.searchTerm = '';
+    // this.api.read(10);
   }
 
   async init() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      this.tags = this.getAllTags();
 
       this.view.initializeHomepage(contacts);
       this.view.initializeNewContactForm();
@@ -27,7 +26,6 @@ export class App {
   async reload() {
     this.api.getAll().then(contacts => {
       this.contacts = contacts;
-      this.tags = this.getAllTags();
       this.view.showContactList(contacts);
     });
   }
@@ -49,7 +47,6 @@ export class App {
       if ($(e.target).is('a')) {
         e.preventDefault();
         e.stopPropagation();
-        // alert('button clicked!');
         $(e.target).toggleClass('active');
         $(e.target).blur();
         this.getSelectedTags();
@@ -58,12 +55,7 @@ export class App {
     });
   }
 
-  getSelectedTags() {
-    this.activeTagFilters = [...$("#tag-filters").find('.active')].map(element => element.name);
-    console.log(this.activeTagFilters);
-  }
-
-  addContactModifierBtnListeners() { //DONE
+  addContactModifierBtnListeners() {
     $('#contact-list').on('click', e => {
       e.preventDefault();
       let $btn = $(e.target).closest('.btn');
@@ -87,7 +79,6 @@ export class App {
 
       if ($target.attr('type') === 'submit') {
         e.preventDefault();
-
         let $form = $target.closest("form");
 
         if (this.validateForm($form)) this.submitForm($form);
@@ -121,11 +112,11 @@ export class App {
 
   filterByTags() {
     this.filteredContactList = this.filteredContactList.filter(contact => {
-      return this.activeTagFilters.some(tag => contact.tags.includes(tag));
+      return this.activeTagFilters.every(tag => contact.tags.includes(tag));
     });
   }
 
-  addNewContactBtnListener() { // DONE
+  addNewContactBtnListener() {
     $("#homepage").on('click', e => {
       if ($(e.target).attr('href') === "#contacts/new") {
         e.preventDefault();
@@ -148,7 +139,7 @@ export class App {
 
   cleanTagInput($form) {
     let tagString = $form.find('.contact-tag-input').val();
-    let cleanedTagString = tagString.split(/,\s*/).join(', ');
+    let cleanedTagString = tagString.split(/,\s*/).filter(val => val !== '').join(', ');
     $form.find('.contact-tag-input').val(cleanedTagString);
   }
 
@@ -160,16 +151,6 @@ export class App {
     validationArr.push(this.validateTags($form.find('.form-group-tags')));
 
     return validationArr.every(element => element);
-  }
-
-  displayError($container, msg) {
-    $container.addClass('has-error');
-    $container.find('small').text(msg);
-  }
-
-  clearError($container) {
-    $container.find('small').empty();
-    $container.removeClass('has-error');
   }
 
   validateName($nameContainer) {
@@ -224,9 +205,14 @@ export class App {
     return isValid;
   }
 
-  loadAddContactForm() {
-    this.view.showForm({ method: 'POST', title: 'Create Contact'});
-    this.addListenerToFormBtns();
+  displayError($container, msg) {
+    $container.addClass('has-error');
+    $container.find('small').text(msg);
+  }
+  
+  clearError($container) {
+    $container.find('small').empty();
+    $container.removeClass('has-error');
   }
 
   editContact(id) {
@@ -242,6 +228,10 @@ export class App {
 
   getContact(id) {
     return this.contacts.find(contact => contact.id === +id);
+  }
+
+  getSelectedTags() {
+    this.activeTagFilters = [...$("#tag-filters").find('.active')].map(element => element.name);
   }
 
   getAllTags() {
