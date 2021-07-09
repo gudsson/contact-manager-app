@@ -9,7 +9,6 @@ export class App {
     this.activeTagFilters = [];
     this.filteredContactList = [];
     this.searchTerm = '';
-    // this.api.read(10);
   }
 
   async init() {
@@ -86,7 +85,7 @@ export class App {
     });
   }
 
-  addSearchBoxListener() { // DONE
+  addSearchBoxListener() {
     $('.contact-name-search').on('keyup', e => {
       this.searchTerm = $(e.target).val().toLowerCase();
       this.filterContactList();
